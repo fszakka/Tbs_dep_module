@@ -1,0 +1,14 @@
+name = Tbs Department
+description = Travel booking system department entity
+core = 7.x
+version = 1.0
+project= TBS
+
+dependencies[] = views
+dependencies[] = entity
+
+files[] = tbs_department.install
+files[] = tbs_department.module
+files[] = includes/tbs_department.page.inc
+files[] = plugins/tbs_department.core.inc
+files[] = plugins/tbs_department.department.inc
