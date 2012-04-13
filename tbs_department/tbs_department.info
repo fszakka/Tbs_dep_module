@@ -6,9 +6,12 @@ project= TBS
 
 dependencies[] = views
 dependencies[] = entity
+dependencies[] = field_ui
 
 files[] = tbs_department.install
 files[] = tbs_department.module
-files[] = includes/tbs_department.page.inc
+files[] = includes/department.admin.inc
+files[] = includes/department.pages.inc
+files[] = includes/department.controller.inc
 files[] = plugins/tbs_department.core.inc
 files[] = plugins/tbs_department.department.inc
