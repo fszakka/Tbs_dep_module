@@ -1,0 +1,105 @@
+<?php
+function tbs_department_schema(){
+    $schema['tbs_department'] = array(
+        'description' => 'the base table for department.',
+        'fields' => array(
+            'dep_id' => array(
+                'description' => 'The primary identifier for a department',
+                'type' => 'serial',
+                'unsigned' => TRUE,
+                'not null' => TRUE,
+            ),
+            'dep_vid' => array(
+                'description' => 'The current {tbs_department_revision}.dep_vid version identifier',
+                'type' => 'int',
+                'unsigned' => TRUE,
+                'not null' => TRUE,
+                'default' => 0,
+            ),
+            'dep_uid' => array(
+                'description' => 'The current user id that entered the department.',
+                'type' => 'int',
+                'unsigned' => TRUE,
+                'not null' => TRUE,
+                'default' => 0,
+            ),
+            'dep_type' => array(
+                'description' => 'The machine readable name of the deparment.',
+                'type' => 'varchar',
+                'length' => 32,
+                'not null' => TRUE,
+                'default' => '',
+            ),
+            'dep_name' => array(
+                'description' => 'The name of the department.',
+                'type' => 'varchar',
+                'length' => 32,
+                'not null' => TRUE,
+                'default' => '',
+            ),
+            'dep_created' => array(
+                'description' => 'the unix timestamp when the department was created.',
+                'type' => 'int',
+                'not null' => TRUE,
+                'default' => 0
+            ),
+            'dep_changed' => array(
+                'description' => 'the unix timestamp when the department was most recently saved',
+                'type' => 'int',
+                'not null' => TRUE,
+                'default' => 0,
+            ),
+        ),
+        'unique keys' => array(
+            'dep_id_dep_vid' => array('dep_id','dep_vid'),
+            'dep_id' => array('dep_id')
+        ),
+        'primary key' => array('dep_id'),
+    );
+    $schema['tbs_department_revision'] = array(
+        'description' => 'Stores information about each saved version of a department.',
+        'fields' => array(
+            'dep_rev_id' => array(
+                'description' => 'The {tbs_department} this version belongs to.',
+                'type' => 'int',
+                'unsigned' => TRUE,
+                'not null' => TRUE,
+                'default' => 0,
+            ),
+            'dep_rev_vid' => array(
+                'description' => 'The primary identifier for this version.',
+                'type' => 'serial',
+                'unsigned' => TRUE,
+                'not null' => TRUE,
+            ),
+            'dep_rev_name' => array(
+                'description' => 'The Department of this version',
+                'type' => 'varchar',
+                'length' => 32,
+                'not null' => TRUE,
+                'default' => '',
+            ),
+            'dep_rev_created' => array(
+                'description' => 'The unix timestamp when the department was created',
+                'type' => 'int',
+                'not null' => TRUE,
+                'default' => 0,
+            ),
+        ),
+        'indexes' => array(
+            'dep_rev_id' => array('dep_rev_id'),
+        ),
+        'primary key' => array('dep_rev_vid'),
+        'foreign Keys' => array(
+            'tbs_department' => array(
+                'table' => 'tbs_department',
+                'columns' => array(
+                    'dep_id'=> 'dep_rev_id',
+                ),
+            ),
+        ),
+    );
+    
+    return $schema;
+    
+}

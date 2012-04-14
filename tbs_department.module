@@ -1,0 +1,299 @@
+<?php
+
+/**
+ * Implements hook_entity_info().
+ */
+function tbs_department_entity_info() {
+    $return['department'] = array(
+        'label' => t('Department'),
+        'controller class' => 'DeparmentController',
+        'base table' => 'tbs_department',
+        'revision table' => 'tbs_department_revision',
+        'uri callback' => 'department_uri',
+        'fieldable' => TRUE,
+        'entity keys' => array(
+            'id' => 'dep_id',
+            'revision' => 'dep_vid',
+            'bundle' => 'dep_type',
+            'label' => 'dep_name',
+        ),
+        'bundle keys' => array(
+            'bundle' => 'dep_type',
+        ),
+        'static cache' => TRUE,
+        'bundles' => array(),
+        'view modes' => array(
+            'full' => array(
+                'label' => t('Full Content'),
+                'custom settings' => FALSE,
+            ),
+            'teaser' => array(
+                'label' => t('Teaser'),
+                'custom settings' => FALSE,
+            ),
+        ),
+    );
+    
+    
+    foreach (department_types() as $type => $info){
+        $return['department']['bundles'][$type] = array(
+           'label' => $info->name,
+           'admin' => array(
+                'path' => 'admin/structure/department/manage/%department_type',
+               'real path' => 'admin/structure/department/manage/' . str_replace('_', '-', $type),
+                'bundle argument' => 4,
+                'access arguments' => array('administer departments'),
+           ),
+        );
+    }
+    return $return;
+}
+/**
+ * Entity uri callback.
+ */
+function department_uri($department){
+    return array(
+        'path' => 'department/' . $department->dep_id,
+    );
+}
+
+/**
+ * Get a list of all department types available.
+ *
+ */
+function department_types() {
+    $types = &drupal_static(__FUNCTION__);
+    
+    if(empty($types)) {
+        $types['accra'] = (object)array(
+            'dep_type' => 'accra',
+            'name' => t('Accra Departments'),
+            'description' => t('Departments located in Accra.')
+        );
+        $types['ahafo'] = (object)array(
+            'dep_type' => 'ahafo',
+            'name' => t('Ahafo Departments'),
+            'description' => t('Departments located in Ahafo.')
+        );
+        $types['achim'] = (object)array(
+            'dep_type' => 'achim',
+            'name' => t('Achim Departments'),
+            'description' => t('Departments located in Achim.')
+        );
+    }
+    return $types;
+}
+/**
+ * Implements hook_field_extra_fields().
+ */
+function tbs_department_field_extra_fields(){
+    $extra = array();
+    
+    foreach(department_types() as $type){
+        $extra['department'][$type->dep_type] = array(
+            'form'=> array(
+                'title' => array(
+                    'label' => t('Title'),
+                    'description' => t('The name of the department'),
+                    'weight' => -5,
+                ),
+            ),
+            'diaplay' => array(
+                'title' => array(
+                    'label' => t('Title'),
+                    'description' => t('The name of the department'),
+                    'weight' => -5,
+                ),
+            ),
+        );
+    }
+    
+    return $extra;
+}
+
+/**
+ * Implements hook_permission()
+ */
+function tbs_department_permission() {
+    return array(
+        'administer departments' => array(
+            'title' => t('Administer Departments'),
+        ),
+        'create departmants' => array(
+            'title' => t('Create Departments'),
+        ),
+        'update departments' => array(
+            'title' => t('Update Departments'),
+        ),
+        'view departments' => array(
+            'title' => t('View Departments'),
+        ),
+        'delete departments' => array(
+            'title' => t('Delete Departments'),
+        ),
+    );
+}
+
+/**
+ * Implementation of hook_menu()
+ */
+function tbs_department_menu(){
+    $items['admin/structure/department'] = array(
+        'title' => 'Manage Departments',
+        'description' => 'Manage Departments',
+        'page callback' => 'department_overview_types',
+        'access arguments' => array('administer departments'),
+        'file' => 'includes/department.admin.inc',
+    );
+    $items['admin/structure/department/manage/%department_type'] = array(
+        'title' => 'View department types',
+        'title callback' => 'department_type_page_title',
+        'title arguments' => array(4),
+        'page callback' => 'department_information',
+        'page arguments' => array(4),
+        'access arguments' => array('administer departments'),
+        'file' => 'includes/department.admin.inc',
+    );
+    $items['admin/structure/department/manage/%deparment_type/view']= array(
+       'title' => 'View',
+       'type' =>  MENU_DEFAULT_LOCAL_TASK,
+    );
+    $items['department/add'] = array(
+       'title' => 'Add new department',
+       'page callback' => 'department_add_page',
+       'access arguments' => array('create departments'),
+       'weight' => 1,
+       'menu_name' => 'management',
+       'file' => 'includes/department.pages.inc',
+    );
+    
+    foreach(department_types() as $type){
+        $type_url_str = str_replace('_','-', $type->dep_type);
+        $items['department/add/' . $type_url_str] = array(
+            'title' => $type->name,
+            'title callback' => 'check_plain',
+            'page callback' => 'department_add',
+            'page arguments' => array(2),
+            'access arguments' => array('create departments'),
+            'description' => $type->description,
+            'file' => 'includes/department.pages.inc',
+        );
+    }
+    $items['department/%department/view'] = array(
+        'title' => 'View',
+        'type' => MENU_DEFAULT_LOCAL_TASK,
+        'weight' => -10,
+    );
+    $items['department/%department/edit'] = array(
+        'title' => 'Edit',
+        'page callback' => 'department_page_edit',
+        'page arguments' => array(1),
+        'access arguments' => array('update departments'),
+        'weight' => 0,
+        'type' => MENU_LOCAL_TASK,
+        'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+        'file' => 'includes/department.pages.inc',
+    );
+    $items['department/%department/delete'] = array(
+        'title' => 'Delete',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('department_delete_confirm', 1),
+        'access arguments' => array('delete departments'),
+        'weight' => 1,
+        'type' => MENU_LOCAL_TASK,
+        'context' => MENU_CONTEXT_INLINE,
+        'file' => 'includes/departmant.pages.inc',
+    );
+    $items['department/recent'] = array(
+        'title' => 'Recently added departments',
+        'page callback' => 'artwork_page_list_recent',
+        'access arguments' => array('view departments'),
+        'file' => 'includes/department.pages.inc',
+    );
+    return $items;
+}
+
+/**
+ * Sets the page title based on the specified department
+ *
+ *  The department object
+ */
+function department_page_title($department){
+     return $department->title;
+}
+
+/**
+ * Implements hook_form().
+ *
+ * All departments forms share the same form handler.
+ */
+function tbs_department_forms(){
+    $forms = array();
+    if($types = department_types()) {
+        foreach(array_keys($types) as $type){
+            $forms[$type. '_department_form']['callback'] = 'department_form';
+        }
+    }
+    return $forms;
+}
+
+/**
+ * Menu title Callback
+ */
+function department_type_page_title($type) {
+    return t('Manage @type', array('@type' => $type->name));
+}
+
+/**
+ * Get an individual department type definition object.
+ */
+function department_type_load($type) {
+    $types = department_types();
+    $type = str_replace('-','_', $type);
+    return isset($types[$type]) ? $types[$type] : FALSE;
+}
+
+/**
+ * Load departments from the database.
+ */
+function department_load_multiple($aids = array(), $conditions = array(), $reset = False){
+    return entity_load('department', $aids, $conditions, $reset);
+}
+
+/**
+ * Department Load
+ */
+function department_load($dep_id = NULL, $dep_vid = NULL, $reset = FALSE) {
+    $dep_ids = (isset($dep_id) ? array($dep_id) : array());
+    $conditions = (isset($dep_vid) ? array('dep_vid' => $dep_vid) : array());
+    $department = department_load_multiple($dep_ids, $conditions, $reset);
+    return $department ? reset($department) : FALSE;
+}
+
+/**
+ * Department Save
+ */
+function department_save($department){
+    return entity_get_controller('department')->save($department);
+}
+
+/**
+ * Department New
+ */
+function department_new($type = '') {
+    return entity_get_controller('department')->create($type);
+}
+
+/**
+ * Department Delete
+ *
+ */
+function department_delete($dep_id) {
+    return department_delete_multiple(array($dep_id));
+}
+/**
+ * Deletes multiple
+ */
+function department_delete_multiple($dep_id) {
+    return entity_get_controller('department')->delete($dep_id);
+}
