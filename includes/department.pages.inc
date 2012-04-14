@@ -122,8 +122,8 @@ function department_form_submit($form, &$form_state) {
   $department = &$form_state['department'];
 
   // Set the artwork's uid if it's being created at this time.
-  if (empty($department->dep_id)) {
-    $department->dep_id = $user->uid;
+  if (empty($department->dep_uid)) {
+    $department->dep_uid = $user->uid;
   }
 
   $department->dep_name = $form_state['values']['title'];
@@ -131,12 +131,12 @@ function department_form_submit($form, &$form_state) {
 
   // Notify field widgets.
   field_attach_submit('department', $department, $form, $form_state);
-
-  // Save the artwork.
-  artwork_save($department);
+  dsm($department);
+  // Save the Department.
+  department_save($department);
 
   // Notify the user.
-  drupal_set_message(t('Artwork saved.'));
+  drupal_set_message(t('Department saved.'));
 
   $form_state['redirect'] = 'department/' . $department->dep_id;
 }
@@ -165,16 +165,16 @@ function department_page_view($department, $view_mode = 'full') {
 
   if ($view_mode == 'teaser') {
     $department->content['title'] = array(
-      '#markup' => filter_xss($department->title),
+      '#markup' => filter_xss($department->dep_name),
       '#weight' => -5,
     );
   }
-
+  dsm($department);
   // Build fields content.
   field_attach_prepare_view('department', array($department->dep_id => $department), $view_mode);
   entity_prepare_view('department', array($department->dep_id => $department));
   $department->content += field_attach_view('department', $department, $view_mode);
-  
+
   return $department->content;
 }
 
