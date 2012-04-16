@@ -136,7 +136,7 @@ class DeparmentController extends DrupalDefaultEntityController {
   }
   
   /**
-   * Deletes multiple artworks by ID.
+   * Deletes multiple department by ID.
    *
    * @param $aids
    *   An array of artwork IDs to delete.
@@ -145,6 +145,7 @@ class DeparmentController extends DrupalDefaultEntityController {
    */
   public function delete($aids) {
     if (!empty($aids)) {
+        
       $department = $this->load($aids, array());
 
       $transaction = db_transaction();
@@ -155,10 +156,10 @@ class DeparmentController extends DrupalDefaultEntityController {
           ->execute();
 
         db_delete('tbs_department_revision')
-          ->condition('dep_rev_id', $aids, 'IN')
+          ->condition('dep_id', $aids, 'IN')
           ->execute();
 
-        foreach ($department as $department_id => $artwork) {
+        foreach ($department as $department_id => $department) {
           field_attach_delete('department', $department);
         }
 

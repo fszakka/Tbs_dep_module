@@ -211,11 +211,11 @@ function tbs_department_menu(){
         'weight' => 1,
         'type' => MENU_LOCAL_TASK,
         'context' => MENU_CONTEXT_INLINE,
-        'file' => 'includes/departmant.pages.inc',
+        'file' => 'includes/department.pages.inc',
     );
     $items['department/recent'] = array(
         'title' => 'Recently added departments',
-        'page callback' => 'artwork_page_list_recent',
+        'page callback' => 'department_page_list_recent',
         'access arguments' => array('view departments'),
         'file' => 'includes/department.pages.inc',
     );

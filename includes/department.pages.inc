@@ -91,7 +91,7 @@ function department_form($form, &$form_state, $department) {
     '#weight' => 5,
     '#submit' => array('department_form_submit'),
   );
-  if (!empty($artwork->aid)) {
+  if (!empty($department->dep_id)) {
     $form['buttons']['delete'] = array(
       '#access' => user_access('delete departments'),
       '#type' => 'submit',
@@ -142,13 +142,18 @@ function department_form_submit($form, &$form_state) {
 }
 
 function department_form_delete_submit($form, &$form_state) {
+     
+  
   $destination = array();
   if (isset($_GET['destination'])) {
     $destination = drupal_get_destination();
     unset($_GET['destination']);
   }
   $department = $form['#department'];
-  $form_state['redirect'] = array('department/' . $department->dep_id . '/delete', array('query' => $destination));
+  
+  $redirect = array('department/' . $department->dep_id . '/delete', array('query' => $destination));
+      
+  $form_state['redirect'] = $redirect;   // array('department/' . $department->dep_id . '/delete', array('query' => $destination));
 }
 
 /**
@@ -161,15 +166,28 @@ function department_form_delete_submit($form, &$form_state) {
  */
 function department_page_view($department, $view_mode = 'full') {
   // Remove previously built content, if exists.
+  
+  global $user;
+  
+  $user_name = '';
+  
+  if($user->uid == $department->dep_uid){
+    $user_name = 'Entered By:' . $user->name;
+  }
+  $user_name .= ' ';
   $department->content = array();
-
+  
   if ($view_mode == 'teaser') {
     $department->content['title'] = array(
       '#markup' => filter_xss($department->dep_name),
       '#weight' => -5,
     );
+    $department->content['user'] = array(
+      '#markup' => '<h3>' . filter_xss($user_name) . '</h3>',
+      '#weight' => -4,
+    );
   }
-  
+
   // Build fields content.
   field_attach_prepare_view('department', array($department->dep_id => $department), $view_mode);
   entity_prepare_view('department', array($department->dep_id => $department));
@@ -185,6 +203,7 @@ function department_delete_confirm($form, &$form_state, $department) {
   $form['#department'] = $department;
   // Always provide entity id in the same form key as in the entity edit form.
   $form['dep_id'] = array('#type' => 'value', '#value' => $department->dep_id);
+  //print_r( $form['dep_id']);
   return confirm_form($form,
     t('Are you sure you want to delete %title?', array('%title' => $department->dep_name)),
     'department/' . $department->dep_id,
@@ -196,14 +215,15 @@ function department_delete_confirm($form, &$form_state, $department) {
 /**
  * Executes artwork deletion.
  */
-function artwork_delete_confirm_submit($form, &$form_state) {
+function department_delete_confirm_submit($form, &$form_state) {
   if ($form_state['values']['confirm']) {
     $department = department_load($form_state['values']['dep_id']);
+
     department_delete($form_state['values']['dep_id']);
-    watchdog('department', '@type: deleted %title.', array('@type' => $department->dep_type, '%title' => $department->title));
+    watchdog('department', '@type: deleted %title.', array('@type' => $department->dep_type, '%title' => $department->dep_name));
 
     $types = department_types();
-    drupal_set_message(t('@type %title has been deleted.', array('@type' => $types[$department->dep_type]->name, '%title' => $department->title)));
+    drupal_set_message(t('@type %title has been deleted.', array('@type' => $types[$department->dep_type]->name, '%title' => $department->dep_name)));
   }
 
   $form_state['redirect'] = '<front>';
@@ -211,18 +231,22 @@ function artwork_delete_confirm_submit($form, &$form_state) {
 
 function department_page_list_recent() {
   $content = array();
-
+  
   $query = new EntityFieldQuery();
   $query
     ->entityCondition('entity_type', 'department')
-    ->propertyOrderBy('created', 'DESC')
-    ->fieldCondition('field_department', 'value', 'Accra', 'CONTAINS', 0)
+    ->propertyOrderBy('dep_created', 'DESC')
+  //  ->fieldCondition('dep_type', 'value', 'Accra', 'CONTAINS', 0)
     ->range(0, 5);
   $result = $query->execute();
+  
 
+  $departments = array();
   $departments = department_load_multiple(array_keys($result['department']));
-  foreach ($deparments as $department) {
-    $content[$artwork->dep_id] = artwork_page_view($department, 'teaser');
+ 
+  foreach ($departments as $department) {
+
+    $content[$department->dep_id] = department_page_view($department, 'teaser');
   }
 
   return $content;
