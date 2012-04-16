@@ -9,7 +9,7 @@
 class DeparmentController extends DrupalDefaultEntityController {
     
     public function save($department){
-        dsm($department);
+        
         $transaction = db_transaction();
         
         try {
@@ -17,18 +17,17 @@ class DeparmentController extends DrupalDefaultEntityController {
             
             // Determin if we will be inserting a new department
             $department->is_new = empty($department->dep_id);
-            dsm(empty($department->dep_id));
-            dsm($department->is_new );
+         
             // Set the timestamp fields.
             if(empty($department->dep_created)) {
               
                 $department->dep_created = REQUEST_TIME;
-                dsm($department->dep_created);
+                
             }
             $department->dep_changed = REQUEST_TIME;
             
             $department->revision_timestamp = REQUEST_TIME;
-            dsm($department);
+           
             $update_department = TRUE;
             
             // Give modules the opportunity to prepare field data for saving.
@@ -39,19 +38,19 @@ class DeparmentController extends DrupalDefaultEntityController {
             //revision ID in a separate property for department hook implementations.
             if(!$department->is_new && !empty($department->revision) && $department->dep_vid){
                 $department->old_dep_vid = $department->dep_vid;
-                dsm($department->old_dep_vid);
+                
                 unset($department->dep_vid);
             }
-            dsm($department);
+           
             // if this is a new department
             if($department->is_new){
                 //save the new department
-                dsm($department);
+              
                 drupal_write_record('tbs_department',$department);
                 
                 // Save the initial revision
                 $this->saveRevision($department, $user->uid);
-                dsm( $department);
+                
                 $op = 'insert';
                                     
             }
@@ -118,7 +117,7 @@ class DeparmentController extends DrupalDefaultEntityController {
      // Hold on to the artwork's original creator_uid but swap in the revision's
     // creator_uid for the momentary write.
     
-    dsm($department);
+    
     $temp_uid = $department->dep_id;
     $department->dep_uid = $uid;
 

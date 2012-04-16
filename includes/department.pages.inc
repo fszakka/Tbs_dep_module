@@ -45,7 +45,7 @@ function department_page_edit($department) {
   $types = department_types();
   drupal_set_title(t('<em>Edit @type</em> @title', array('@type' => $types[$department->dep_type]->name, '@title' => $department->dep_name)), PASS_THROUGH);
 
-  return drupal_get_form($artwork->dep_type . '_department_form', $department);
+  return drupal_get_form($department->dep_type . '_department_form', $department);
 }
 
 
@@ -131,7 +131,7 @@ function department_form_submit($form, &$form_state) {
 
   // Notify field widgets.
   field_attach_submit('department', $department, $form, $form_state);
-  dsm($department);
+ 
   // Save the Department.
   department_save($department);
 
@@ -169,7 +169,7 @@ function department_page_view($department, $view_mode = 'full') {
       '#weight' => -5,
     );
   }
-  dsm($department);
+  
   // Build fields content.
   field_attach_prepare_view('department', array($department->dep_id => $department), $view_mode);
   entity_prepare_view('department', array($department->dep_id => $department));

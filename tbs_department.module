@@ -228,7 +228,7 @@ function tbs_department_menu(){
  *  The department object
  */
 function department_page_title($department){
-     dsm($department);
+     
      return $department->dep_name;
 }
 
