@@ -3,7 +3,7 @@
 /**
  * Menu callback; Show list of department types we can add.
  */
-function artwork_add_page() {
+function department_add_page() {
   $item = menu_get_item();
   $links = system_admin_menu_block($item);
 
