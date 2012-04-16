@@ -79,7 +79,7 @@ function tbs_department_schema(){
                 'not null' => TRUE,
                 'default' => '',
             ),
-            'dep__created' => array(
+            'dep_created' => array(
                 'description' => 'The unix timestamp when the department was created',
                 'type' => 'int',
                 'not null' => TRUE,

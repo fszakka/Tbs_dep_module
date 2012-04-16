@@ -39,6 +39,7 @@ class DeparmentController extends DrupalDefaultEntityController {
             //revision ID in a separate property for department hook implementations.
             if(!$department->is_new && !empty($department->revision) && $department->dep_vid){
                 $department->old_dep_vid = $department->dep_vid;
+                dsm($department->old_dep_vid);
                 unset($department->dep_vid);
             }
             dsm($department);
@@ -50,7 +51,7 @@ class DeparmentController extends DrupalDefaultEntityController {
                 
                 // Save the initial revision
                 $this->saveRevision($department, $user->uid);
-                
+                dsm( $department);
                 $op = 'insert';
                                     
             }
@@ -123,7 +124,7 @@ class DeparmentController extends DrupalDefaultEntityController {
 
     // Update the existing revision if specified.
     if ($update) {
-      drupal_write_record('tbs_department_revision', $department, 'dep_rev_id');
+      drupal_write_record('tbs_department_revision', $department, 'dep_vid');
     }
     else {
       // Otherwise insert a new revision. This will automatically update $artwork
