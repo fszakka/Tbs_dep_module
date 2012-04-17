@@ -93,9 +93,11 @@ function tbs_department_schema(){
         'foreign Keys' => array(
             'tbs_department' => array(
                 'table' => 'tbs_department',
-                'columns' => array(
-                    'dep_id'=> 'dep_id',
-                ),
+                'columns' => array('dep_id'=> 'dep_id'),
+            ),
+            'users' => array(
+                'table' => 'users',
+                'columns' => array('uid' => 'dep_id'),
             ),
         ),
     );
@@ -103,3 +105,15 @@ function tbs_department_schema(){
     return $schema;
     
 }
+/**
+ * Implements hook_uninstall().
+ */
+ function tbs_department_uninstall()
+ {
+    // Make sure tbs_department.module is included.
+    require dirname(__FILE__) . DIRECTORY_SEPARATOR . 'tbs_department.module';
+    // Bypass entity_load() as we cannot use it here.
+    foreach(department_types() as $department_type ) {
+        field_attach_delete_bundle('department', $department_type->dep_type);
+    }
+ }
