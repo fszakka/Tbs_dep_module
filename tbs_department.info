@@ -2,7 +2,7 @@ name = Tbs Department
 description = Travel booking system department entity
 core = 7.x
 version = 1.0
-project= TBS
+package = TBS
 
 dependencies[] = views
 dependencies[] = entity

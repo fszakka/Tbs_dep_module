@@ -41,7 +41,7 @@ function tbs_department_schema(){
                 'description' => 'the unix timestamp when the department was created.',
                 'type' => 'int',
                 'not null' => TRUE,
-                'default' => 0
+                'default' => 0,
             ),
             'dep_changed' => array(
                 'description' => 'the unix timestamp when the department was most recently saved',
@@ -55,6 +55,63 @@ function tbs_department_schema(){
             'dep_id' => array('dep_id')
         ),
         'primary key' => array('dep_id'),
+    );
+    $schema['tbs_department_type'] = array(
+        'description' => 'this table stores information about the types of bundel',
+        'fields' => array(
+            'dep_type_id' => array(
+                'description' => 'The {tbs_department_type}. this is the primary identifier for a department type.',
+                'type' => 'serial',
+                'unsigned' => TRUE,
+                'not null' => TRUE,
+            ),
+            'dep_type' => array(
+                'description' => 'this holds the bundle machine readable name.',
+                'type' => 'varchar',
+                'length' => 255,
+                'not null' => TRUE,
+                'default' => '',
+            ),
+            'name' => array(
+                'description' => 'This holds the human readable name of the bundle.',
+                'type' => 'varchar',
+                'length' => 255,
+                'not null' => TRUE,
+                'default' => '',
+            ),
+            'description' => array(
+                'description' => 'This holds a short description of the bundle',
+                'type' => 'varchar',
+                'length' => 255,
+                'not null' => TRUE,
+                'default' => '',
+            ),
+            'weight' => array(
+                'description' => 'The weight of this department type in relation to others',
+                'type' => 'int',
+                'not null' => TRUE,
+                'default' => 0,
+                'size' => 'tiny',
+            ),
+            'data' => array(
+                'description' => 'A serialized array of additional data related to the type',
+                'type' => 'text',
+                'not null' => FALSE,
+                'size' => 'big',
+                'serialize' => TRUE,
+                
+            ),
+            'created' => array(
+                'description' => 'This holds the unix timstamp on when the type was created',
+                'type' => 'int',
+                'not null' => TRUE,
+                'default' => 0,
+            ),
+        ),
+        'primary key' => array('dep_type_id'),
+        'unique keys' => array(
+            'dep_type' => array('dep_type')
+        ),
     );
     $schema['tbs_department_revision'] = array(
         'description' => 'Stores information about each saved version of a department.',
@@ -86,6 +143,8 @@ function tbs_department_schema(){
                 'default' => 0,
             ),
         ),
+        
+        
         'indexes' => array(
             'dep_id' => array('dep_id'),
         ),

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Menu callback; List all artwork types available.
+ * Menu callback; List all department types available.
  */
 function department_overview_types() {
   foreach (department_types() as $type => $info) {
